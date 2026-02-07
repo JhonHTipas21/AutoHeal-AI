@@ -23,7 +23,7 @@
 ---
 
 <p align="center">
-  An enterprise-grade <strong>autonomous infrastructure healing system</strong> that monitors, analyzes, and automatically remediates incidents using <strong>AI-driven OODA loop</strong> decision making. Built for DevOps/SRE teams who want to reduce MTTR and automate incident response.
+  An enterprise-grade <strong>autonomous infrastructure healing system</strong> that monitors, analyzes, and automatically remediates incidents using the <strong>OODA (Observe, Orient, Decide, Act) loop</strong> methodology. Built for DevOps/SRE teams who want to reduce MTTR and automate incident response.
 </p>
 
 ---
@@ -43,9 +43,7 @@
   </tr>
 </table>
 
-> 📍 **Your screenshots go in:** `docs/images/`
-> 
-> Add more images like: `api-docs.png`, `incident-detail.png`, `healing-flow.png`
+
 
 ---
 
@@ -59,7 +57,7 @@
     </td>
     <td align="center" width="33%">
       <h3>🧠 Log Intelligence</h3>
-      <p>AI-powered log analysis with SLM for error classification and root cause inference</p>
+      <p>Advanced log analysis with SLM for error classification and root cause inference</p>
     </td>
     <td align="center" width="33%">
       <h3>🎯 Incident Correlation</h3>
@@ -214,7 +212,7 @@ The **Command Center** dashboard provides a professional NOC-style interface:
 | 📊 **KPI Cards** | Total incidents, MTTR, auto-remediation rate, healing mode |
 | 📈 **Latency Chart** | Real-time metrics with threshold visualization |
 | 🚨 **Incident Feed** | Live stream with severity indicators |
-| 🤖 **AI Terminal** | OODA reasoning trace and decisions |
+| 🤖 **Reasoning Terminal** | OODA decision trace and actions |
 | ⚡ **Quick Actions** | Restart, Scale, Rollback, Simulate buttons |
 | 🔄 **Mode Toggle** | Manual / Semi-Auto / Autonomous |
 
@@ -302,7 +300,7 @@ AutoHeal-AI/
   <img src="docs/images/ooda-loop.png" alt="OODA Loop" width="600">
 </p>
 
-The AutoHeal Agent implements a military-grade **OODA Loop** (Observe, Orient, Decide, Act) for autonomous decision making:
+The AutoHeal Agent implements a military-grade **OODA Loop** (Observe, Orient, Decide, Act) methodology for autonomous decision making:
 
 | Phase | Action | Description |
 |-------|--------|-------------|
@@ -352,14 +350,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
   <strong>Jhon Harvey Tipas Solis</strong><br>
   <a href="https://github.com/JhonHTipas21">GitHub</a> •
   <a href="https://linkedin.com/in/jhonharveytipas">LinkedIn</a>
-</p>
-
----
-
-<p align="center">
-  <strong>⭐ Star this repo if you find it useful! ⭐</strong>
-</p>
-
-<p align="center">
-  Built with ❤️ and ☕ for the DevOps/SRE community
 </p>
