@@ -1,0 +1,88 @@
+# AutoHeal AI - Prometheus Configuration
+# Scrape configuration for monitoring AutoHeal services
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'autoheal-local'
+    env: 'development'
+
+# Alerting configuration (optional - for future Alertmanager integration)
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+# Rule files (for future alerting rules)
+rule_files: []
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    metrics_path: /metrics
+
+  # AutoHeal Monitoring Service
+  - job_name: 'autoheal-monitoring'
+    static_configs:
+      - targets: ['monitoring:8000']
+    metrics_path: /metrics
+    scrape_interval: 10s
+
+  # AutoHeal Log Intelligence Service
+  - job_name: 'autoheal-log-intelligence'
+    static_configs:
+      - targets: ['log-intelligence:8001']
+    metrics_path: /metrics
+
+  # AutoHeal Incident Manager
+  - job_name: 'autoheal-incident-manager'
+    static_configs:
+      - targets: ['incident-manager:8002']
+    metrics_path: /metrics
+
+  # AutoHeal Agent
+  - job_name: 'autoheal-agent'
+    static_configs:
+      - targets: ['autoheal-agent:8003']
+    metrics_path: /metrics
+
+  # AutoHeal K8s Executor
+  - job_name: 'autoheal-k8s-executor'
+    static_configs:
+      - targets: ['k8s-executor:8004']
+    metrics_path: /metrics
+
+  # AutoHeal Audit Service
+  - job_name: 'autoheal-audit'
+    static_configs:
+      - targets: ['audit-service:8005']
+    metrics_path: /metrics
+
+  # Demo application (for testing)
+  - job_name: 'demo-app'
+    static_configs:
+      - targets: ['demo-app:8080']
+    metrics_path: /metrics
+
+  # Optional: Kubernetes service discovery (when running in K8s)
+  # Uncomment the following for Kubernetes deployments
+  # - job_name: 'kubernetes-pods'
+  #   kubernetes_sd_configs:
+  #     - role: pod
+  #   relabel_configs:
+  #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+  #       action: keep
+  #       regex: true
+  #     - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+  #       action: replace
+  #       target_label: __metrics_path__
+  #       regex: (.+)
+  #     - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+  #       action: replace
+  #       regex: ([^:]+)(?::\d+)?;(\d+)
+  #       replacement: $1:$2
+  #       target_label: __address__

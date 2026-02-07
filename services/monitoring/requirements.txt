@@ -1,0 +1,17 @@
+# Monitoring Service Dependencies
+# AutoHeal AI - Metrics collection and anomaly detection
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# Prometheus Integration
+prometheus-client>=0.17.0
+httpx>=0.24.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Utilities
+python-dateutil>=2.8.2

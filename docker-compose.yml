@@ -1,0 +1,233 @@
+# AutoHeal AI - Docker Compose Configuration
+# Local development stack with all services and observability
+
+services:
+  # =============================================================================
+  # OBSERVABILITY STACK
+  # =============================================================================
+  
+  prometheus:
+    image: prom/prometheus:v2.47.0
+    container_name: autoheal-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    container_name: autoheal-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./infrastructure/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: autoheal-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./infrastructure/loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+
+  # =============================================================================
+  # AUTOHEAL SERVICES
+  # =============================================================================
+
+  monitoring:
+    build:
+      context: ./services/monitoring
+      dockerfile: Dockerfile
+    container_name: autoheal-monitoring
+    ports:
+      - "8000:8000"
+    environment:
+      - PROMETHEUS_URL=http://prometheus:9090
+      - INCIDENT_MANAGER_URL=http://incident-manager:8002
+      - AUDIT_SERVICE_URL=http://audit-service:8005
+      - LOG_LEVEL=INFO
+      - ANOMALY_THRESHOLD_ERROR_RATE=0.05
+      - ANOMALY_THRESHOLD_LATENCY_P99_MS=1000
+      - ANOMALY_THRESHOLD_CPU_PERCENT=80
+      - ANOMALY_THRESHOLD_MEMORY_PERCENT=85
+      - POLLING_INTERVAL_SECONDS=15
+    depends_on:
+      - prometheus
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  log-intelligence:
+    build:
+      context: ./services/log-intelligence
+      dockerfile: Dockerfile
+    container_name: autoheal-log-intelligence
+    ports:
+      - "8001:8001"
+    environment:
+      - LOKI_URL=http://loki:3100
+      - INCIDENT_MANAGER_URL=http://incident-manager:8002
+      - AUDIT_SERVICE_URL=http://audit-service:8005
+      - LOG_LEVEL=INFO
+      - SLM_MODEL=mock  # Options: mock, tinyllama
+    depends_on:
+      - loki
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  incident-manager:
+    build:
+      context: ./services/incident-manager
+      dockerfile: Dockerfile
+    container_name: autoheal-incident-manager
+    ports:
+      - "8002:8002"
+    environment:
+      - AUTOHEAL_AGENT_URL=http://autoheal-agent:8003
+      - AUDIT_SERVICE_URL=http://audit-service:8005
+      - LOG_LEVEL=INFO
+      - COOLDOWN_SECONDS=300
+      - MAX_CONCURRENT_INCIDENTS=5
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  autoheal-agent:
+    build:
+      context: ./services/autoheal-agent
+      dockerfile: Dockerfile
+    container_name: autoheal-agent
+    ports:
+      - "8003:8003"
+    environment:
+      - K8S_EXECUTOR_URL=http://k8s-executor:8004
+      - MONITORING_URL=http://monitoring:8000
+      - AUDIT_SERVICE_URL=http://audit-service:8005
+      - LOG_LEVEL=INFO
+      - DRY_RUN_MODE=true
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  k8s-executor:
+    build:
+      context: ./services/k8s-executor
+      dockerfile: Dockerfile
+    container_name: autoheal-k8s-executor
+    ports:
+      - "8004:8004"
+    environment:
+      - AUDIT_SERVICE_URL=http://audit-service:8005
+      - LOG_LEVEL=INFO
+      - DRY_RUN_MODE=true
+      - KUBECONFIG=/app/.kube/config  # Mount if using real cluster
+    volumes:
+      - ~/.kube:/app/.kube:ro  # Optional: for real K8s access
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  audit-service:
+    build:
+      context: ./services/audit-service
+      dockerfile: Dockerfile
+    container_name: autoheal-audit-service
+    ports:
+      - "8005:8005"
+    environment:
+      - DATABASE_URL=sqlite:///./data/audit.db
+      - LOG_LEVEL=INFO
+    volumes:
+      - audit_data:/app/data
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # DEMO APPLICATION (for testing)
+  # =============================================================================
+
+  demo-app:
+    build:
+      context: ./demo
+      dockerfile: Dockerfile
+    container_name: autoheal-demo-app
+    ports:
+      - "8080:8080"
+    environment:
+      - SIMULATE_ERRORS=false
+      - ERROR_RATE=0.0
+    networks:
+      - autoheal-network
+    restart: unless-stopped
+
+# =============================================================================
+# NETWORKS & VOLUMES
+# =============================================================================
+
+networks:
+  autoheal-network:
+    driver: bridge
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  loki_data:
+  audit_data:

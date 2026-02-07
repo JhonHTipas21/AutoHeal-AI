@@ -1,0 +1,16 @@
+# AutoHeal AI - Grafana Dashboard Provisioning
+# Automatic loading of dashboards
+
+apiVersion: 1
+
+providers:
+  - name: 'AutoHeal Dashboards'
+    orgId: 1
+    folder: 'AutoHeal AI'
+    folderUid: autoheal
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

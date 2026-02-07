@@ -1,0 +1,24 @@
+# Log Intelligence Service Dependencies
+# AutoHeal AI - Log analysis with SLM
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# HTTP Client
+httpx>=0.24.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Date/Time utilities
+python-dateutil>=2.8.2
+
+# Text processing (for log parsing)
+regex>=2023.0.0
+
+# Optional: For real SLM integration (uncomment if using)
+# transformers>=4.30.0
+# torch>=2.0.0
+# accelerate>=0.20.0

@@ -1,0 +1,19 @@
+# Incident Manager Service Dependencies
+# AutoHeal AI - Incident lifecycle management
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# HTTP Client
+httpx>=0.24.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Date/Time utilities
+python-dateutil>=2.8.2
+
+# State management (in-memory for now)
+# For production, consider redis or PostgreSQL

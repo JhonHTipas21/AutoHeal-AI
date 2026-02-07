@@ -1,0 +1,13 @@
+# Audit & Explainability Service Dependencies
+# AutoHeal AI - Track decisions, reasoning, and actions
+
+# Web Framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Date/Time
+python-dateutil>=2.8.2

@@ -1,0 +1,16 @@
+# AutoHeal AI - Core Dependencies
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+httpx>=0.24.0
+python-dateutil>=2.8.2
+regex>=2023.0.0
+
+# Dashboard
+streamlit>=1.30.0
+plotly>=5.18.0
+pandas>=2.0.0
+
+# Optional: Kubernetes
+# kubernetes>=28.0.0
